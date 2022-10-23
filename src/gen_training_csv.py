@@ -3,9 +3,9 @@ import csv
 import os
 import random
 
-path_to_letters = "C:/Users/bencl/Desktop/Senior Fall Semester/EECS_581/ASL Project/alphabet besides J and Z/SigNN Character Database"
-path_to_j_z = "C:/Users/bencl/Desktop/Senior Fall Semester/EECS_581/ASL Project/J and Z/SigNN Video Data"
-path_to_numbers = "C:/Users/bencl/Desktop/Senior Fall Semester/EECS_581/ASL Project/numbers/Sign Language for Numbers"
+path_to_letters = "C:/Users/bencl/Desktop/Data/archive (2)/SigNN Character Database"
+path_to_j_z = "C:/Users/bencl/Desktop/Data/archive (1)/SigNN Video Data"
+path_to_numbers = "C:/Users/bencl/Desktop/Data/archive/Sign Language for Numbers"
 paths = [path_to_letters, path_to_j_z, path_to_numbers]
 
 def generate_csv():
@@ -28,12 +28,15 @@ def generate_csv():
                 #iterate through all files in folder
                 for i, filename in enumerate(os.listdir(path + "/" + folder)):
                     #create a string conatining the last three folders and the file name
-                    video_name = path.split("/")[-2] + "/" + path.split("/")[-1] + "/" + folder + "/" + filename
+                    #video_name = path.split("/")[-2] + "/" + path.split("/")[-1] + "/" + folder + "/" + filename
                     #write row to csv
                     if i in test_indexes:
-                        test_data.append([video_name, folder])
+                        os.rename(path + "/" + folder + "/" + filename, "C:/Users/bencl/Desktop/Data/Test/" + folder + str(i) + "." + filename.split(".")[-1])
+                        test_data.append([folder + str(i) + "." + filename.split(".")[-1], folder])
                     else:
-                        writer.writerow([video_name, folder])
+                        #move the file to C:\Users\bencl\Desktop\Data\Train
+                        os.rename(path + "/" + folder + "/" + filename, "C:/Users/bencl/Desktop/Data/Train/" + folder + str(i) + "." + filename.split(".")[-1])
+                        writer.writerow([folder + str(i) + "." + filename.split(".")[-1], folder])
     #write test data to csv
     with open('test_data.csv', 'w', newline='') as csvfile:
         #create csv writer
