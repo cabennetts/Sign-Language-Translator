@@ -3,10 +3,12 @@ import csv
 import os
 import random
 
-path_to_letters = "C:/Users/bencl/Desktop/Data/archive (2)/SigNN Character Database"
-path_to_j_z = "C:/Users/bencl/Desktop/Data/archive (1)/SigNN Video Data"
-path_to_numbers = "C:/Users/bencl/Desktop/Data/archive/Sign Language for Numbers"
-paths = [path_to_letters, path_to_j_z, path_to_numbers]
+path_to_letters = "C:/Users/bencl/Desktop/Senior Fall Semester/EECS_581/ASL Project/alphabet besides J and Z/SigNN Character Database"
+path_to_j_z = "C:/Users/bencl/Desktop/Senior Fall Semester/EECS_581/ASL Project/J and Z/SigNN Video Data"
+test_folder = "C:/Users/bencl/Desktop/data/Test"
+train_folder = "C:/Users/bencl/Desktop/data/Train"
+#path_to_numbers = "C:/Users/bencl/Desktop/Senior Fall Semester/EECS_581/ASL Project"
+paths = [path_to_letters, path_to_j_z]
 
 def generate_csv():
     #open csv file
@@ -31,11 +33,11 @@ def generate_csv():
                     #video_name = path.split("/")[-2] + "/" + path.split("/")[-1] + "/" + folder + "/" + filename
                     #write row to csv
                     if i in test_indexes:
-                        os.rename(path + "/" + folder + "/" + filename, "C:/Users/bencl/Desktop/Data/Test/" + folder + str(i) + "." + filename.split(".")[-1])
+                        os.rename(path + "/" + folder + "/" + filename, test_folder + "/" + folder + str(i) + "." + filename.split(".")[-1])
                         test_data.append([folder + str(i) + "." + filename.split(".")[-1], folder])
                     else:
                         #move the file to C:\Users\bencl\Desktop\Data\Train
-                        os.rename(path + "/" + folder + "/" + filename, "C:/Users/bencl/Desktop/Data/Train/" + folder + str(i) + "." + filename.split(".")[-1])
+                        os.rename(path + "/" + folder + "/" + filename, train_folder + "/" + folder + str(i) + "." + filename.split(".")[-1])
                         writer.writerow([folder + str(i) + "." + filename.split(".")[-1], folder])
     #write test data to csv
     with open('test_data.csv', 'w', newline='') as csvfile:
