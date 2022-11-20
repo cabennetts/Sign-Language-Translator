@@ -3,12 +3,13 @@ import csv
 import os
 import random
 
-path_to_letters = "C:/Users/bencl/Desktop/Senior Fall Semester/EECS_581/ASL Project/alphabet besides J and Z/SigNN Character Database"
-path_to_j_z = "C:/Users/bencl/Desktop/Senior Fall Semester/EECS_581/ASL Project/J and Z/SigNN Video Data"
+path_to_letters = "C:/Users/bencl/Desktop/Senior Fall Semester/EECS_581/ASL Project/archive (2)//SigNN Character Database"
+path_to_j_z = "C:/Users/bencl/Desktop/Senior Fall Semester/EECS_581/ASL Project/archive (1)/SigNN Video Data"
+path_to_numbers = "C:/Users/bencl/Desktop/Senior Fall Semester/EECS_581/ASL Project/Sign-Language-Digits-Dataset-master/Dataset"
 test_folder = "C:/Users/bencl/Desktop/data/Test"
 train_folder = "C:/Users/bencl/Desktop/data/Train"
 #path_to_numbers = "C:/Users/bencl/Desktop/Senior Fall Semester/EECS_581/ASL Project"
-paths = [path_to_letters, path_to_j_z]
+paths = [path_to_letters, path_to_j_z, path_to_numbers]
 
 def generate_csv():
     #open csv file
