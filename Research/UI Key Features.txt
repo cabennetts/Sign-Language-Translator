@@ -1,0 +1,6 @@
+UI Key Features:
+    Initial landing page/Home screen
+    Live camera feed should be visible
+    User should be able to see what has been interpreted
+    Options for user to adjust their experience (toggle skeleton overlay, adjust camera/video settings, maybe switch between layers (depth, optical flow, skeleton, etc)
+    Display possible interpretations with confidence levels for given sign
