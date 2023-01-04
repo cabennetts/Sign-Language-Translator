@@ -9,7 +9,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, random_split
 from torch.utils.tensorboard import SummaryWriter
 import torchvision.transforms as transforms #might not need this
-from Conv3D import flow_r2plus1d_18
+from Conv3D import r2plus1d_18
 from epoch_classes.train_epoch import train_epoch
 from epoch_classes.validate_epoch import val_epoch
 from collections import OrderedDict
@@ -75,4 +75,61 @@ hidden1, hidden2 = 512, 256
 
 if __name__ == '__main__':
     #Train!
-    logger.info('Training...')
+    # Load data
+    transform = transforms.Compose([transforms.Resize([sample_size, sample_size]),
+                                    transforms.ToTensor(),
+                                    transforms.Normalize(mean=[0.5], std=[0.5])])
+    train_set = Sign_Isolated(data_path=data_path, label_path=label_train_path, frames=sample_duration,
+        num_classes=num_classes, train=True, transform=transform)
+    val_set = Sign_Isolated(data_path=data_path2, label_path=label_val_path, frames=sample_duration,
+        num_classes=num_classes, train=False, transform=transform)
+    logger.info("Dataset samples: {}".format(len(train_set)+len(val_set)))
+    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=24, pin_memory=True)
+    val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False, num_workers=24, pin_memory=True)
+    # Create model
+
+    model = r2plus1d_18(pretrained=True, num_classes=500)
+    # load pretrained
+    checkpoint = torch.load('pretrained/slr_resnet2d+1.pth')
+    new_state_dict = OrderedDict()
+    for k, v in checkpoint.items():
+        name = k[7:] # remove 'module.'
+        new_state_dict[name]=v
+    model.load_state_dict(new_state_dict)
+    if phase == 'Train':
+        model.fc1 = nn.Linear(model.fc1.in_features, num_classes)
+    print(model)
+
+
+    
+    model = model.to(device)
+    # Run the model parallelly
+    if torch.cuda.device_count() > 1:
+        logger.info("Using {} GPUs".format(torch.cuda.device_count()))
+        model = nn.DataParallel(model)
+    # Create loss criterion & optimizer
+    # criterion = nn.CrossEntropyLoss()
+    criterion = LabelSmoothingCrossEntropy()
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=10, threshold=0.0001)
+
+    # Start training
+    if phase == 'Train':
+        logger.info("Training Started".center(60, '#'))
+        for epoch in range(epochs):
+            print('lr: ', get_lr(optimizer))
+            # Train the model
+            train_epoch(model, criterion, optimizer, train_loader, device, epoch, logger, log_interval, writer)
+
+            # Validate the model
+            val_loss = val_epoch(model, criterion, val_loader, device, epoch, logger, writer)
+            scheduler.step(val_loss)
+            
+            # Save model
+            torch.save(model.state_dict(), os.path.join(model_path, "sign_resnet2d+1_epoch{:03d}.pth".format(epoch+1)))
+            logger.info("Epoch {} Model Saved".format(epoch+1).center(60, '#'))
+    elif phase == 'Test':
+        logger.info("Testing Started".center(60, '#'))
+        val_loss = val_epoch(model, criterion, val_loader, device, 0, logger, writer, phase=phase, exp_name=exp_name)
+
+    logger.info("Finished".center(60, '#'))
