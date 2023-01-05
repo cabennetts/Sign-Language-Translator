@@ -94,7 +94,7 @@ def main():
             transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
         ])
 
-        input_path = '/home/ubuntu/workspace/data/sign/val'
+        input_path = '../../../../test/'
         paths = []
         names = []
         for root, _, fnames in natsorted(os.walk(input_path)):
