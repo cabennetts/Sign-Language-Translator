@@ -9,6 +9,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, random_split
 from torch.utils.tensorboard import SummaryWriter
 import torchvision.transforms as transforms #might not need this
+from dataset_sign_clip import Sign_Isolated
 from Conv3D import r2plus1d_18
 from epoch_classes.train_epoch import train_epoch
 from epoch_classes.validate_epoch import val_epoch
