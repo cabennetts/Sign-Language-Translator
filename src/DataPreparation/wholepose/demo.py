@@ -42,7 +42,12 @@ index_mirror = np.concatenate([
                 ]) - 1
 assert(index_mirror.shape[0] == 133)
 
-multi_scales = [512,640]
+
+
+multi_scales = [640,480]
+
+
+
 def norm_numpy_totensor(img):
     img = img.astype(np.float32) / 255.0
     for i in range(3):
@@ -61,6 +66,7 @@ def merge_hm(hms_list):
     # print(hm.size(0))
     hm = torch.mean(hms, dim=0)
     return hm
+
 def main():
 
     with torch.no_grad():
@@ -87,7 +93,8 @@ def main():
             new_state_dict[name] = v
         newmodel.load_state_dict(new_state_dict)
 
-        newmodel.cuda().eval()
+        #newmodel.cuda().eval() CUDA WAS HERE!!!!
+        newmodel.eval()
 
         transform  = transforms.Compose([
             transforms.ToTensor(),
@@ -100,25 +107,31 @@ def main():
         for root, _, fnames in natsorted(os.walk(input_path)):
             for fname in natsorted(fnames):     
                 path1 = os.path.join(root, fname) 
+                if "desktop.ini" in path1:
+                    continue
                 if 'depth' in fname:
                     continue
                 paths.append(path1)
                 names.append(fname)
-        print(len(paths))
+        print("Length of paths: " + str(len(paths)))
+        print("paths: ", paths)
         # paths = paths[:4]
         # names = names[:4]
         step = 600
         start_step = 6
         # paths = paths[start_step*step:(start_step+1)*step]
         # names = names[start_step*step:(start_step+1)*step]
-        paths = paths[4200:]
-        names = names[4200:]
+
+        #Seems these lines would remove the first 4200 paths and then reverse them
+        #not sure why they did this, maybe to remove 4200 videos for testing/validating?
+        #paths = paths[4200:]
+        #names = names[4200:]
         paths = paths[::-1]
         names = names[::-1]
-
         for i, path in enumerate(paths):
             # if i > 1:
             #     break
+            print("Setting output to: " + 'npy3/{}.npy'.format(names[i]))
             output_npy = 'npy3/{}.npy'.format(names[i])
 
             if os.path.exists(output_npy):
@@ -129,8 +142,10 @@ def main():
 
             frame_width = int(cap.get(3))
             frame_height = int(cap.get(4))
-            # frame_width = 256
-            # frame_height = 256
+            print("Frame width: " + str(frame_width))
+            print("Frame height: " + str(frame_height))
+            #frame_width = 640
+            #frame_height = 480
             print(path)
             # output_filename = os.path.join('out_test', names[i]) 
 
@@ -138,8 +153,10 @@ def main():
             # fps = cap.get(cv2.CAP_PROP_FPS)
             # writer = cv2.VideoWriter(output_filename,cv2.VideoWriter_fourcc('M','P','4','V'), 5, (frame_width,frame_height))
             output_list = []
-            
+            i = 0
             while cap.isOpened():
+                print(i)
+                i+=1
                 success, img = cap.read()
                 if not success:
                     print("Ignoring empty camera frame.")
@@ -151,14 +168,16 @@ def main():
                 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                 out = []
                 for scale in multi_scales:
-                    if scale != 512:
+                    if scale != 640 or scale != 480:
                         img_temp = cv2.resize(img, (scale,scale))
                     else:
                         img_temp = img
                     img_temp = stack_flip(img_temp)
-                    img_temp = norm_numpy_totensor(img_temp).cuda()
+                    img_temp = norm_numpy_totensor(img_temp)#.cuda() CUDA WAS HERE!!!!!!!!!!!!1
+                    print(img_temp.size())
                     hms = newmodel(img_temp)
-                    if scale != 512:
+                    if scale != 640 or 480:
+                        #
                         out.append(f.interpolate(hms, (frame_width // 4,frame_height // 4), mode='bilinear'))
                     else:
                         out.append(hms)
@@ -181,7 +200,7 @@ def main():
                 pred[:, 0] = x
                 pred[:, 1] = y
 
-                hm = out.cpu().numpy().reshape((133, frame_height//4, frame_height//4))
+                hm = out.cpu().numpy().reshape((133, frame_height//4, frame_width//4))
 
                 pred = pose_process(pred, hm)
                 pred[:,:2] *= 4.0 

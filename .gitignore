@@ -29,8 +29,20 @@ MANIFEST
 #Training videos
 *.mp4
 
-#model for wholepose extraction
+#models
 src/DataPreparation/wholepose/hrnet_w48_coco_wholebody_384x288-6e061c6a_20200922.pth
+src/FeatureExtraction/wholebody_hrnet_w48_384x384.pth
+src/pretrained/slr_resnet2d+1.pth
+src/checkpoint/rgb_final/*.pth
+
+#images
+src/DataPreparation/val_frames/*.jpg
+
+#other stuff
+src/DataPreparation/val_frames/train_frames/
+src/DataPreparation/val_frames/val_frames/
+src/model_logs/
+
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

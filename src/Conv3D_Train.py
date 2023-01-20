@@ -15,13 +15,21 @@ from epoch_classes.train_epoch import train_epoch
 from epoch_classes.validate_epoch import val_epoch
 from collections import OrderedDict
 
+import snoop
+
 class LabelSmoothingCrossEntropy(nn.Module):
     def __init__(self):
         super(LabelSmoothingCrossEntropy, self).__init__()
+
+    @snoop
     def forward(self, x, target, smoothing=0.1):
+        print("target:", target.size())
         confidence = 1. - smoothing
         logprobs = F.log_softmax(x, dim=-1)
         nll_loss = -logprobs.gather(dim=-1, index=target.unsqueeze(1))
+        #target_unsqueezed = target.unsqueeze(1)
+        #nll_loss = -logprobs.gather(dim=-1, index=target_unsqueezed)
+        #nll_loss = F.nll_loss(logprobs, target)
         nll_loss = nll_loss.squeeze(1)
         smooth_loss = -logprobs.mean(dim=-1)
         loss = confidence * nll_loss + smoothing * smooth_loss
@@ -35,10 +43,10 @@ def get_lr(optimizer):
 
 # Data and label paths
 exp_name = 'rgb_final'
-data_path = "[PLACEHOLDER]/train_frames"
-data_path2 = "[PLACEHOLDER]/val_frames"
-label_train_path = "[PLACEHOLDER]/train_labels.csv"
-label_val_path = "[PLACEHOLDER]/test_lables.csv"
+data_path = r"C:/Users/bencl/Desktop/SeniorFallSemester/EECS_581/ASLProject/Sign-Language-Translator/src/DataPreparation/val_frames/train_frames"
+data_path2 = r"C:/Users/bencl/Desktop/SeniorFallSemester/EECS_581/ASLProject/Sign-Language-Translator/src/DataPreparation/val_frames/val_frames"
+label_train_path = r"C:/Users/bencl/Desktop/SeniorFallSemester/EECS_581/ASLProject/Sign-Language-Translator/src/DataPreparation/val_frames/train_labels.csv"
+label_val_path = r"C:/Users/bencl/Desktop/SeniorFallSemester/EECS_581/ASLProject/Sign-Language-Translator/src/DataPreparation/val_frames/test_labels.csv"
 model_path = "checkpoint/{}".format(exp_name)
 if not os.path.exists(model_path):
     os.mkdir(model_path)
@@ -62,14 +70,17 @@ writer = SummaryWriter(sum_path)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Hyperparams
-num_classes = 226 
-epochs = 100
-batch_size = 24
+num_classes = 3
+#epochs = 100
+epochs = 3
+#batch_size = 24
+batch_size = 8
 learning_rate = 1e-3#1e-3 Train 1e-4 Finetune
 weight_decay = 1e-4 #1e-4
-log_interval = 80
-sample_size = 128
-sample_duration = 32
+log_interval = 300
+#sample_size = 128
+sample_size = 240
+sample_duration = 16
 attention = False
 drop_p = 0.0
 hidden1, hidden2 = 512, 256
@@ -87,11 +98,12 @@ if __name__ == '__main__':
     logger.info("Dataset samples: {}".format(len(train_set)+len(val_set)))
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=24, pin_memory=True)
     val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False, num_workers=24, pin_memory=True)
+
     # Create model
 
     model = r2plus1d_18(pretrained=True, num_classes=500)
     # load pretrained
-    checkpoint = torch.load('pretrained/slr_resnet2d+1.pth')
+    checkpoint = torch.load('pretrained/slr_resnet2d+1.pth', map_location='cpu')
     new_state_dict = OrderedDict()
     for k, v in checkpoint.items():
         name = k[7:] # remove 'module.'
@@ -101,13 +113,13 @@ if __name__ == '__main__':
         model.fc1 = nn.Linear(model.fc1.in_features, num_classes)
     print(model)
 
-
     
     model = model.to(device)
     # Run the model parallelly
     if torch.cuda.device_count() > 1:
         logger.info("Using {} GPUs".format(torch.cuda.device_count()))
         model = nn.DataParallel(model)
+
     # Create loss criterion & optimizer
     # criterion = nn.CrossEntropyLoss()
     criterion = LabelSmoothingCrossEntropy()

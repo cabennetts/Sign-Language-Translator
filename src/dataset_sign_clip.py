@@ -28,8 +28,13 @@ class Sign_Isolated(Dataset):
             line = line.split(',')
 
             self.sample_names.append(line[0])
-            self.data_folder.append(os.path.join(data_path, line[0]))
+            #self.data_folder.append(os.path.join(data_path, line[0]))
+            self.data_folder.append(data_path + "/" + str(line[0]) + "/")
             self.labels.append(int(line[1]))
+        print("!!!!!!!!!!!!!!!")
+        print("DATA FOLDER:", self.data_folder)
+        print("Samples: ", len(self.sample_names))
+        print("!!!!!!!!!!!!!!!")
 
     def frame_indices_tranform(self, video_length, sample_duration):
         if video_length > sample_duration:
@@ -64,6 +69,8 @@ class Sign_Isolated(Dataset):
         return i, j, i+output_size, j+output_size
 
     def read_images(self, folder_path, clip_no=0):
+
+        print("folder_path:", folder_path)
         # assert len(os.listdir(folder_path)) >= self.frames, "Too few images in your data folder: " + str(folder_path)
         images = []
         if self.train:
@@ -76,7 +83,10 @@ class Sign_Isolated(Dataset):
         
         # for i in range(self.frames):
         for i in index_list:
-            image = Image.open(os.path.join(folder_path, '{:04d}.jpg').format(i))
+            print("SUCCESS", i)
+            print("Opening... " + folder_path + ('{:04d}.jpg').format(i))
+            #image = Image.open(os.path.join(folder_path, '{:04d}.jpg').format(i))
+            image = Image.open(folder_path +  ('{:04d}.jpg').format(i))
             if self.train:
                 if flip_rand > 0.5:
                     image = ImageOps.mirror(image)

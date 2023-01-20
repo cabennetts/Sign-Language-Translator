@@ -15,6 +15,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+import snoop
+from snoop import spy
+
 BN_MOMENTUM = 0.1
 logger = logging.getLogger(__name__)
 
@@ -152,6 +155,7 @@ class HighResolutionModule(nn.Module):
 
         self.branches = self._make_branches(
             num_branches, blocks, num_blocks, num_channels)
+        
         self.fuse_layers = self._make_fuse_layers()
         self.relu = nn.ReLU(True)
 
@@ -223,6 +227,7 @@ class HighResolutionModule(nn.Module):
 
         return nn.ModuleList(branches)
 
+    
     def _make_fuse_layers(self):
         if self.num_branches == 1:
             return None
@@ -279,26 +284,41 @@ class HighResolutionModule(nn.Module):
                     fuse_layer.append(nn.Sequential(*conv3x3s))
             fuse_layers.append(nn.ModuleList(fuse_layer))
 
+
+        print("FUSE LAYERS")
+        for x in fuse_layers:
+            print(x)
+
         return nn.ModuleList(fuse_layers)
 
     def get_num_inchannels(self):
         return self.num_inchannels
 
+    #@snoop(depth=2,watch_explode=('i','j','x','x.size()','y','y.size()','self.fuse_layers[0]','self.fuse_layers[i][j](x[j]).size()[2]','self.fuse_layers[0][2](x[2]).size()[2]'))
     def forward(self, x):
         if self.num_branches == 1:
             return [self.branches[0](x[0])]
 
         for i in range(self.num_branches):
             x[i] = self.branches[i](x[i])
+            
 
         x_fuse = []
 
         for i in range(len(self.fuse_layers)):
+            #print("fuse layer... ")
+            #print(self.fuse_layers[i])
             y = x[0] if i == 0 else self.fuse_layers[i][0](x[0])
             for j in range(1, self.num_branches):
+                #print("current y size... ")
+                #print(y.size())
                 if i == j:
+                    #print("current x size... ")
+                    #print(x[j].size())
                     y = y + x[j]
                 else:
+                    #print("fuse layer size... ")
+                    #print(self.fuse_layers[i][j](x[j]).size())
                     y = y + self.fuse_layers[i][j](x[j])
             x_fuse.append(self.relu(y))
 

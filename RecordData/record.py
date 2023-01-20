@@ -7,6 +7,7 @@ import time
 from pathlib import Path
 import signal
 import threading
+from colorama import Fore, Back, Style
 
 # DepthAI Record library
 from depthai_sdk import Record, EncodingQuality
@@ -27,7 +28,7 @@ def checkQuality(value: str):
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-p', '--path', default="recordings", type=str, help="Path where to store the captured data")
-parser.add_argument('-save', '--save', default=["color", "left", "right", "depth", "disparity"], nargs="+", choices=_save_choices,
+parser.add_argument('-save', '--save', default=["color", "left", "right"], nargs="+", choices=_save_choices,
                     help="Choose which streams to save. Default: %(default)s")
 # parser.add_argument('-f', '--fps', type=float, default=30,
 #                     help='Camera sensor FPS, applied to all cams')
@@ -104,9 +105,14 @@ def run():
         # Terminate app handler
         quitEvent = threading.Event()
         signal.signal(signal.SIGTERM, lambda *_args: quitEvent.set())
-        print("\nRecording started. Press 'Ctrl+C' to stop.")
-
-        while not quitEvent.is_set():
+        print(Fore.RED + "\nRecording started. Press 'Ctrl+C' to stop.")
+        print(Style.RESET_ALL)
+    
+        
+        start = time.time()
+        # while (time.time() - start < 3.5) or (not quitEvent.is_set()):
+        while ((time.time() - start) < 3.5) :
+            # print(time.time()-start, "\n")
             try:
                 for recording in devices:
                     if 0 < args.timelapse and time.time() - timelapse < args.timelapse:
@@ -132,14 +138,6 @@ def run():
                                 recording.frame_q.put(frames)
 
                 time.sleep(0.001) # 1ms, avoid lazy looping
+                # if timer has stopped break
             except KeyboardInterrupt:
                 break
-
-        print('') # For new line in terminal
-        for recording in devices:
-            recording.frame_q.put(None)
-            recording.process.join()  # Terminate the process
-        print("All recordings have stopped successfuly. Exiting the app.")
-
-if __name__ == '__main__':
-    run()
