@@ -11,7 +11,7 @@ for Gloss in ListOfSigns:
         os.mkdir(glossPath)
     except:
         print("Folder for Gloss Already Exists, moving on")
-    os.chdir(glossPath)
+    #os.chdir(glossPath)
     fileNum = 1
     while True:
         videoPath = os.path.join(glossPath, str(fileNum))
@@ -19,8 +19,8 @@ for Gloss in ListOfSigns:
             fileNum+=1
         else:
             break
-    
-    for iteration in range(1,5):
+
+    for iteration in range(0,4):
         videoPath = os.path.join(glossPath, str(fileNum+iteration))
         os.mkdir(videoPath)
         print("recording " + Gloss + " in 2 sec")
@@ -32,11 +32,3 @@ for Gloss in ListOfSigns:
     print("")
     #put the video in the new folder
     os.chdir(parent_dir)
-    
-
-    
-    
-
-    
-    
-    
