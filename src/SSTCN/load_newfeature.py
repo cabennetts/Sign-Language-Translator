@@ -5,6 +5,7 @@ from torch.utils.data import Dataset, DataLoader
 import cv2
 import numpy as np
 import scipy.io
+import json
 import os
 from torch.autograd import Variable
 import random
@@ -15,19 +16,20 @@ class TorchDataset(Dataset):
     fea_dir,
     isaug=False,# set True for training, False for finetuning
     repeat=1):
-        self.load_name = './train_val_split.mat'
-        self.mat = scipy.io.loadmat(self.load_name)
+        self.load_name = './train_split.json'
+        #self.mat = scipy.io.loadmat(self.load_name)
+        with open(self.load_name) as jsonFile:
+            self.json = json.load(jsonFile)
         self.istrain = istrain
         self.isaug = isaug
         # file name of training and testing samples
-        self.train_file_name = self.mat['train_file_name']
-        self.test_file_name = self.mat['test_file_name']
-        self.train_label = self.mat['train_label']
-        self.test_label = self.mat['test_label']
-        self.train_number = self.mat['train_count']
-        self.test_number = self.mat['test_count']
-        self.train_number = self.train_number[0][0]
-        self.test_number = self.test_number[0][0]
+        self.train_file_name = self.json['train_file_name']
+        self.test_file_name = self.json['test_file_name']
+        self.train_label = self.json['train_label']
+        self.test_label = self.json['test_label']
+        self.train_number = self.json['train_count']
+        self.test_number = self.json['test_count']
+
         self.fea_label_list = self.read_file()
         if self.istrain:
            random.shuffle(self.fea_label_list)
@@ -55,16 +57,16 @@ class TorchDataset(Dataset):
         fea_label_list = []
         if self.istrain:
             for idx in range(self.train_number):
-              name = self.train_file_name[idx][0][0][0][0]+ '_color'+ '.pt'
-              labels = self.train_label[idx][0]
+              name = self.train_file_name[idx]+ '_color'+ '.pt'
+              labels = self.train_label[idx]
               fea_label_list.append((name, labels))
-              name = self.train_file_name[idx][0][0][0][0]+ '_color'+ '_flip.pt'
-              labels = self.train_label[idx][0]
+              name = self.train_file_name[idx]+ '_color'+ '_flip.pt'
+              labels = self.train_label[idx]
               fea_label_list.append((name, labels))
         else:
             for idx in range(self.test_number):
-              name = self.test_file_name[idx][0][0][0][0]+ '_color'+ '.pt'
-              labels = int(self.test_label[idx][0])
+              name = self.test_file_name[idx]+ '_color'+ '.pt'
+              labels = self.test_label[idx]
               fea_label_list.append((name, labels))
         return fea_label_list
  

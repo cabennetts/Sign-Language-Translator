@@ -15,7 +15,7 @@ if __name__ == "__main__":
 
     opt = parser.parse_args()
     print(opt)
-    test_files = open('test_labels_pseudo.pkl', 'rb')
+    test_files = open('test_labels.pkl', 'rb')
     test_files = np.array(pickle.load(test_files))
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -27,7 +27,7 @@ if __name__ == "__main__":
     
     # Add weights from checkpoint model if specified
     if opt.checkpoint_model:
-        model.load_state_dict(torch.load(opt.checkpoint_model,map_location='cuda:0'))#,strict=False)
+        model.load_state_dict(torch.load(opt.checkpoint_model,map_location='cpu'))#,strict=False)
     else:
         model.init_weights()
     model.eval()
