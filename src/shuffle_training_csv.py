@@ -12,4 +12,4 @@ def shuffle_csv(csv_file):
 #print current directory
 print(os.getcwd())
 
-shuffle_csv("src/test_data.csv")
+shuffle_csv("E:/ASL_Data/train_labels.csv")

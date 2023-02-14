@@ -192,7 +192,7 @@ class Processor():
 
     def __init__(self, arg):
 
-        arg.model_saved_name = "./save_models/" + arg.Experiment_name
+        arg.model_saved_name = "E:/ASL_Data/data/joint_model/" + arg.Experiment_name
         arg.work_dir = "./work_dir/" + arg.Experiment_name
         self.arg = arg
         self.save_arg()
@@ -236,9 +236,10 @@ class Processor():
             worker_init_fn=init_seed)
 
     def load_model(self):
+        print("DEVICE: ", self.arg.device, "")
         output_device = self.arg.device[0] if type(
             self.arg.device) is list else self.arg.device
-        self.output_device = output_device
+        self.output_device = "cuda:0"
         Model = import_class(self.arg.model)
         shutil.copy2(inspect.getfile(Model), self.arg.work_dir)
         self.model = Model(**self.arg.model_args).cuda(output_device)
@@ -275,12 +276,12 @@ class Processor():
                 state.update(weights)
                 self.model.load_state_dict(state)
 
-        if type(self.arg.device) is list:
-            if len(self.arg.device) > 1:
-                self.model = nn.DataParallel(
-                    self.model,
-                    device_ids=self.arg.device,
-                    output_device=output_device)
+        #if type(self.arg.device) is list:
+        #    if len(self.arg.device) > 1:
+        #        self.model = nn.DataParallel(
+        #            self.model,
+        #            device_ids=self.arg.device,
+        #            output_device=output_device)
 
     def load_optimizer(self):
         if self.arg.optimizer == 'SGD':
@@ -575,7 +576,7 @@ if __name__ == '__main__':
     p = parser.parse_args()
     if p.config is not None:
         with open(p.config, 'r') as f:
-            default_arg = yaml.load(f)
+            default_arg = yaml.safe_load(f)
         key = vars(p).keys()
         for k in default_arg.keys():
             if k not in key:

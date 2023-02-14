@@ -35,6 +35,9 @@ src/FeatureExtraction/wholebody_hrnet_w48_384x384.pth
 src/pretrained/slr_resnet2d+1.pth
 src/checkpoint/rgb_final/*.pth
 
+#pickle files
+*.pkl
+
 #images
 src/DataPreparation/val_frames/*.jpg
 

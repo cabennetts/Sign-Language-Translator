@@ -24,9 +24,9 @@ import torchvision.transforms as transforms
 from tqdm import tqdm
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--video_path", type=str, default="../../../test/Train", help="Path to input dataset")
-    parser.add_argument("--feature_path",type=str, default="../DataPreparation/wholepose/npy3", help="Path to output feature dataset")
-    parser.add_argument("--istrain",type=bool, default=False, help="generate training data or not")
+    parser.add_argument("--video_path", type=str, default="E:/ASL_Data/data/Video_Train_Test/Train", help="Path to input dataset")
+    parser.add_argument("--feature_path",type=str, default="E:/ASL_Data/data/pt/Train", help="Path to output feature dataset")
+    parser.add_argument("--istrain",type=bool, default=True, help="generate training data or not")
     opt = parser.parse_args()
     print(opt)
     videopath = opt.video_path+'/*'
@@ -35,19 +35,22 @@ def main():
     with torch.no_grad():
         config = './wholebody_w48_384x384_adam_lr1e-3.yaml'
         cfg.merge_from_file(config)
-        device = torch.device("cpu")
+        device = torch.device("cuda:0")
         model = get_pose_net(cfg, is_train=False)
         #checkpoint = torch.load('./wholebody_hrnet_w48_384x384.pth', map_location="cuda:0")
-        checkpoint = torch.load('./wholebody_hrnet_w48_384x384.pth', map_location="cpu")
+        checkpoint = torch.load('./wholebody_hrnet_w48_384x384.pth', map_location="cuda:0")
         model.load_state_dict(checkpoint)
         model.to(device)
         model.eval()
         print("start extraction!")
         filelist = list(glob.iglob(videopath))
+        print(filelist)
         for filename in tqdm(filelist):
           if "desktop.ini" in filename:
               continue
-          output_filename = opt.feature_path+'/'+filename[lenstr:-4] + '.pt'
+          print("hi")
+          #NOT SURE THIS WORKS ON ALL MACHINES
+          output_filename = opt.feature_path+'/'+filename.split("\\")[1] + '.pt'
           frames = []
           frames_flip = []
           cap = cv2.VideoCapture(filename)
@@ -113,7 +116,7 @@ def main():
 ################## feature extraction ################################################
           print("length of frames: ",len(frames))
           data = np.array(frames)
-          input = Variable(torch.from_numpy(data))#.cuda())
+          input = Variable(torch.from_numpy(data).cuda())
           out = model(input)
           m = torch.nn.MaxPool2d(3, stride=2,padding=1)
           out = m(out)
@@ -124,13 +127,13 @@ def main():
           torch.save(newout,output_filename)
           if opt.istrain:
               data = np.array(frames_flip)
-              input = Variable(torch.from_numpy(data))#.cuda())
+              input = Variable(torch.from_numpy(data).cuda())
               out = model(input)
               out = m(out)
               out = m(out)
               newout = out[:,selected_indices,:,:]
               newout = newout.view(1,-1,24,24)
-              output_filename = opt.feature_path+'/'+filename[lenstr:-4] + '_flip.pt'
+              output_filename = opt.feature_path+'/'+ filename.split("\\")[1]+ '_flip.pt'
               torch.save(newout,output_filename)
           if len(frames)!=60:
               break

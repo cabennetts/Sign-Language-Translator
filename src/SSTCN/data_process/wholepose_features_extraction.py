@@ -26,7 +26,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--video_path", type=str, default="../data/color_test", help="Path to input dataset")
     parser.add_argument("--feature_path",type=str, default="../data/test_features", help="Path to output feature dataset")
-    parser.add_argument("--istrain",type=bool, default=False, help="generate training data or not")
+    parser.add_argument("--istrain",type=bool, default=True, help="generate training data or not")
     opt = parser.parse_args()
     print(opt)
     videopath = opt.video_path+'/*'

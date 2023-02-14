@@ -31,10 +31,10 @@ class Sign_Isolated(Dataset):
             #self.data_folder.append(os.path.join(data_path, line[0]))
             self.data_folder.append(data_path + "/" + str(line[0]) + "/")
             self.labels.append(int(line[1]))
-        print("!!!!!!!!!!!!!!!")
-        print("DATA FOLDER:", self.data_folder)
-        print("Samples: ", len(self.sample_names))
-        print("!!!!!!!!!!!!!!!")
+        #print("!!!!!!!!!!!!!!!")
+        #print("DATA FOLDER:", self.data_folder)
+        #print("Samples: ", len(self.sample_names))
+        #print("!!!!!!!!!!!!!!!")
 
     def frame_indices_tranform(self, video_length, sample_duration):
         if video_length > sample_duration:
@@ -83,19 +83,19 @@ class Sign_Isolated(Dataset):
         
         # for i in range(self.frames):
         for i in index_list:
-            print("SUCCESS", i)
-            print("Opening... " + folder_path + ('{:04d}.jpg').format(i))
+            #print("SUCCESS", i)
+            #print("Opening... " + folder_path + ('{:04d}.jpg').format(i))
             #image = Image.open(os.path.join(folder_path, '{:04d}.jpg').format(i))
             image = Image.open(folder_path +  ('{:04d}.jpg').format(i))
-            if self.train:
-                if flip_rand > 0.5:
-                    image = ImageOps.mirror(image)
-                image = transforms.functional.rotate(image, angle)
-                image = image.crop(crop_box)
-                assert image.size[0] == 224
-            else:
-                crop_box = (16, 16, 240, 240)
-                image = image.crop(crop_box)
+            #if self.train:
+                #if flip_rand > 0.5:
+                #    image = ImageOps.mirror(image)
+                #image = transforms.functional.rotate(image, angle)
+                #image = image.crop(crop_box)
+                #assert image.size[0] == 224
+            #else:
+                #crop_box = (16, 16, 240, 240)
+                #image = image.crop(crop_box)
                 # assert image.size[0] == 224
             if self.transform is not None:
                 image = self.transform(image)

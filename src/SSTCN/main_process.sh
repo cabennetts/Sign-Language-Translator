@@ -1,12 +1,12 @@
 # written by Bin Sun
 # email: sun.bi@northeastern.edu
 
-mkdir train_videos
-mkdir val_videos
+#mkdir train_videos
+#mkdir val_videos
 ######change path_to_train_videos to your real path for training videos#####################
-mv path_to_train_videos/*color* train_videos/
+#mv path_to_train_videos/*color* train_videos/
 ######change path_to_val_videos to your real path for val videos#####################
-mv path_to_val_videos/*color* val_videos/
+#mv path_to_val_videos/*color* val_videos/
 
 cd data_process
 python wholepose_features_extraction.py --video_path ../train_videos/ --feature_path ../data/train_features --is_train True

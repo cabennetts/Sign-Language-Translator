@@ -29,10 +29,10 @@ class LabelSmoothingCrossEntropy(nn.Module):
 
 # Path setting
 exp_name = 'rgb_final_test'
-data_path = r"C:/Users/bencl/Desktop/SeniorFallSemester/EECS_581/ASLProject/Sign-Language-Translator/src/DataPreparation/val_frames/train_frames"
-data_path2 = r"C:/Users/bencl/Desktop/SeniorFallSemester/EECS_581/ASLProject/Sign-Language-Translator/src/DataPreparation/val_frames/val_frames"
-label_train_path = r"C:/Users/bencl/Desktop/SeniorFallSemester/EECS_581/ASLProject/Sign-Language-Translator/src/DataPreparation/val_frames/train_labels.csv"
-label_val_path = r"C:/Users/bencl/Desktop/SeniorFallSemester/EECS_581/ASLProject/Sign-Language-Translator/src/DataPreparation/val_frames/test_labels.csv"
+data_path = r"E:/ASL_Data/data/train_frames"
+data_path2 = r"E:/ASL_Data/data/test_frames"
+label_train_path = r"E:/ASL_Data/train_labels.csv"
+label_val_path = r"E:/ASL_Data/test_labels.csv"
 model_path = "checkpoint/{}".format(exp_name)
 if not os.path.exists(model_path):
     os.mkdir(model_path)
@@ -49,12 +49,12 @@ writer = SummaryWriter(sum_path)
 
 # Use specific gpus
 # os.environ["CUDA_VISIBLE_DEVICES"]="4,5,6,7"
-os.environ["CUDA_VISIBLE_DEVICES"]="0,1,2,3"
+#os.environ["CUDA_VISIBLE_DEVICES"]="0,1,2,3"
 # Device setting
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cpu")#cuda" if torch.cuda.is_available() else "cpu")
 
 # Hyperparams
-num_classes = 3 #100
+num_classes = 36 #100
 epochs = 3
 # batch_size = 16
 batch_size = 8
@@ -76,8 +76,8 @@ def get_lr(optimizer):
 if __name__ == '__main__':
     # Load data
     transform = transforms.Compose([transforms.Resize([sample_size, sample_size]),
-                                    transforms.ToTensor(),
-                                    transforms.Normalize(mean=[0.5], std=[0.5])])
+                                    transforms.ToTensor()])#,
+                                    #transforms.Normalize(mean=[0.5], std=[0.5])])
     train_set = Sign_Isolated(data_path=data_path, label_path=label_train_path, frames=sample_duration,
         num_classes=num_classes, train=True, transform=transform)
     val_set = Sign_Isolated(data_path=data_path2, label_path=label_val_path, frames=sample_duration,
@@ -93,9 +93,9 @@ if __name__ == '__main__':
     # model = resnet50(pretrained=True, progress=True, sample_size=sample_size, sample_duration=sample_duration,
     #                 attention=attention, num_classes=num_classes).to(device)
 
-    model = r2plus1d_18(pretrained=True, num_classes=3)
+    model = r2plus1d_18(pretrained=True, num_classes=36)
     # load pretrained
-    checkpoint = torch.load('checkpoint/rgb_final/sign_resnet2d+1_epoch003.pth', map_location='cpu')
+    checkpoint = torch.load('checkpoint/rgb_final/sign_resnet2d+1_3_epoch052.pth', map_location='cpu')
 
     new_state_dict = OrderedDict()
 
@@ -114,9 +114,9 @@ if __name__ == '__main__':
     
     model = model.to(device)
     # Run the model parallelly
-    if torch.cuda.device_count() > 1:
-        logger.info("Using {} GPUs".format(torch.cuda.device_count()))
-        model = nn.DataParallel(model)
+    #if torch.cuda.device_count() > 1:
+    #    logger.info("Using {} GPUs".format(torch.cuda.device_count()))
+    #    model = nn.DataParallel(model)
     # Create loss criterion & optimizer
     # criterion = nn.CrossEntropyLoss()
     criterion = LabelSmoothingCrossEntropy()

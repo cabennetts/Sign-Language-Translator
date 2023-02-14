@@ -13,13 +13,15 @@ import datetime
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset_path", type=str, default="./data/train_features", help="Path to input dataset")
-    parser.add_argument("--save_path", type=str, default="./model_checkpoints", help="Path to save")
+    parser.add_argument("--dataset_path", type=str, default="E:/ASL_Data/data/pt/Train", help="Path to input dataset")
+    parser.add_argument("--save_path", type=str, default="E:/ASL_Data/data/TCN_model", help="Path to save")
     parser.add_argument("--num_epochs", type=int, default=400, help="Number of training epochs")
-    parser.add_argument("--batch_size", type=int, default=60, help="Size of each training batch")
+    parser.add_argument("--batch_size", type=int, default=4, help="Size of each training batch")
     parser.add_argument("--lr", type=float, default=0.001, help="learning rate")
     parser.add_argument("--wd", type=float, default=0.0001, help="weight decay")
     parser.add_argument("--checkpoint_model", type=str, default="", help="Optional path to checkpoint model")
+
+    test_path = "E:/ASL_Data/data/pt/Test"
 
     opt = parser.parse_args()
     print(opt)
@@ -27,18 +29,18 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # Define training set
     train_dataset = TorchDataset(istrain=True, fea_dir=opt.dataset_path, isaug = True, repeat=1)
-    train_dataloader = DataLoader(train_dataset, batch_size=opt.batch_size, shuffle=True, num_workers=32,pin_memory=True)
+    train_dataloader = DataLoader(train_dataset, batch_size=opt.batch_size, shuffle=True, num_workers=0,pin_memory=False)
 
     # Define test set
-    test_dataset = TorchDataset(istrain=False, fea_dir=opt.dataset_path, repeat=1)
-    test_dataloader = DataLoader(test_dataset, batch_size=opt.batch_size, shuffle=False, num_workers=32,pin_memory=True)
+    test_dataset = TorchDataset(istrain=False, fea_dir="E:/ASL_Data/data/pt/Test", repeat=1)
+    test_dataloader = DataLoader(test_dataset, batch_size=opt.batch_size, shuffle=False, num_workers=0,pin_memory=False)
 
     # Classification criterion
     #cls_criterion = nn.CrossEntropyLoss().to(device)
     cls_criterion = LabelSmoothingCrossEntropy().cuda()
     # Define network
     model =T_Pose_model(frames_number=60,joints_number=33,
-        n_classes=226
+        n_classes=36
     )
 
     if opt.checkpoint_model:
@@ -149,6 +151,7 @@ if __name__ == "__main__":
             # Empty cache
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
+            print("finsished batch %d" % (batch_i))
 
         # Evaluate the model on the test set
         newacc = test_model(epoch,global_acc,needsave)

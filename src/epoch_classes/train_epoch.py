@@ -11,18 +11,21 @@ def train_epoch(model, criterion, optimizer, dataloader, device, epoch, logger, 
     for batch_idx, data in enumerate(dataloader):
         # get the inputs and labels
         inputs, labels = data['data'].to(device), data['label'].to(device)
-        print("INPUTS")
-        print(inputs)
-        print("LABELS")
-        for i in range(len(labels)):
-            print(labels[i])
-        print(labels)
+        
+        #print("INPUTS")
+        #print(inputs)
+        #print("LABELS")
+        #for i in range(len(labels)):
+        #    print(labels[i])
+        #print(labels)
         optimizer.zero_grad()
         # forward
         outputs = model(inputs)
         if isinstance(outputs, list):
             outputs = outputs[0]
         # compute the loss
+        #print(labels)
+        #print(labels.squeeze())
         loss = criterion(outputs, labels.squeeze())
         losses.append(loss.item())
 

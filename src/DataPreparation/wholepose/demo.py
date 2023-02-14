@@ -76,7 +76,7 @@ def main():
         # dump_input = torch.randn(1, 3, 256, 256)
         # newmodel = PoseHighResolutionNet()
         newmodel = get_pose_net(cfg, is_train=False)
-        print(newmodel)
+        #print(newmodel)
         # dump_output = newmodel(dump_input)
         # print(dump_output.size())
         checkpoint = torch.load('./hrnet_w48_coco_wholebody_384x288-6e061c6a_20200922.pth')
@@ -93,15 +93,15 @@ def main():
             new_state_dict[name] = v
         newmodel.load_state_dict(new_state_dict)
 
-        #newmodel.cuda().eval() CUDA WAS HERE!!!!
-        newmodel.eval()
+        newmodel.cuda().eval() #CUDA WAS HERE!!!!
+        #newmodel.eval()
 
         transform  = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
         ])
 
-        input_path = '../../../../test/'
+        input_path = 'E:/ASL_Data/testing/video'
         paths = []
         names = []
         for root, _, fnames in natsorted(os.walk(input_path)):
@@ -131,8 +131,8 @@ def main():
         for i, path in enumerate(paths):
             # if i > 1:
             #     break
-            print("Setting output to: " + 'npy3/{}.npy'.format(names[i]))
-            output_npy = 'npy3/{}.npy'.format(names[i])
+            print("Setting output to: " + 'E:/ASL_Data/testing/video/npy/{}.npy'.format(names[i]))
+            output_npy = 'E:/ASL_Data/testing/video/npy/{}.npy'.format(names[i])
 
             if os.path.exists(output_npy):
                 continue
@@ -173,7 +173,7 @@ def main():
                     else:
                         img_temp = img
                     img_temp = stack_flip(img_temp)
-                    img_temp = norm_numpy_totensor(img_temp)#.cuda() CUDA WAS HERE!!!!!!!!!!!!1
+                    img_temp = norm_numpy_totensor(img_temp).cuda() #UDA WAS HERE!!!!!!!!!!!!1
                     print(img_temp.size())
                     hms = newmodel(img_temp)
                     if scale != 640 or 480:

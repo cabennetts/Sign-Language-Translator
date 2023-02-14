@@ -34,7 +34,7 @@ def gendata(data_path, label_path, out_path, part='train', config='27'):
         line = line.split(',')
 
         sample_names.append(line[0])
-        data.append(os.path.join(data_path, line[0] + '_color.mp4.npy'))
+        data.append(os.path.join(data_path, line[0] + '.npy'))
         # print(line[1])
         labels.append(int(line[1]))
         # print(labels[-1])
@@ -77,9 +77,9 @@ def gendata(data_path, label_path, out_path, part='train', config='27'):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Sign Data Converter.')
-    parser.add_argument('--data_path', default='/data/sign/test_npy/npy') #'train_npy/npy', 'va_npy/npy'
-    parser.add_argument('--label_path', default='../data/sign/27/train_labels.csv') # 'train_labels.csv', 'val_gt.csv', 'test_labels.csv'
-    parser.add_argument('--out_folder', default='../data/sign/')
+    parser.add_argument('--data_path', default='E:/ASL_Data/data/npy3/Test') #'train_npy/npy', 'va_npy/npy'
+    parser.add_argument('--label_path', default='E:/ASL_Data/test_labels.csv') # 'train_labels.csv', 'val_gt.csv', 'test_labels.csv'
+    parser.add_argument('--out_folder', default='E:/ASL_Data/data/sign_gendata')
     parser.add_argument('--points', default='27')
 
     part = 'test' # 'train', 'val'

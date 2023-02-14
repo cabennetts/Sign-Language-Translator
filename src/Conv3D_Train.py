@@ -14,14 +14,14 @@ from Conv3D import r2plus1d_18
 from epoch_classes.train_epoch import train_epoch
 from epoch_classes.validate_epoch import val_epoch
 from collections import OrderedDict
-
 import snoop
+import math
 
 class LabelSmoothingCrossEntropy(nn.Module):
     def __init__(self):
         super(LabelSmoothingCrossEntropy, self).__init__()
 
-    @snoop
+#    @snoop
     def forward(self, x, target, smoothing=0.1):
         print("target:", target.size())
         confidence = 1. - smoothing
@@ -43,10 +43,10 @@ def get_lr(optimizer):
 
 # Data and label paths
 exp_name = 'rgb_final'
-data_path = r"C:/Users/bencl/Desktop/SeniorFallSemester/EECS_581/ASLProject/Sign-Language-Translator/src/DataPreparation/val_frames/train_frames"
-data_path2 = r"C:/Users/bencl/Desktop/SeniorFallSemester/EECS_581/ASLProject/Sign-Language-Translator/src/DataPreparation/val_frames/val_frames"
-label_train_path = r"C:/Users/bencl/Desktop/SeniorFallSemester/EECS_581/ASLProject/Sign-Language-Translator/src/DataPreparation/val_frames/train_labels.csv"
-label_val_path = r"C:/Users/bencl/Desktop/SeniorFallSemester/EECS_581/ASLProject/Sign-Language-Translator/src/DataPreparation/val_frames/test_labels.csv"
+data_path = r"E:/ASL_Data/data/train_frames"
+data_path2 = r"E:/ASL_Data/data/test_frames"
+label_train_path = r"E:/ASL_Data/train_labels.csv"
+label_val_path = r"E:/ASL_Data/test_labels.csv"
 model_path = "checkpoint/{}".format(exp_name)
 if not os.path.exists(model_path):
     os.mkdir(model_path)
@@ -70,14 +70,14 @@ writer = SummaryWriter(sum_path)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Hyperparams
-num_classes = 3
-#epochs = 100
-epochs = 3
+num_classes = 36
+epochs = 100
+#epochs = 40
 #batch_size = 24
-batch_size = 8
+batch_size = 2
 learning_rate = 1e-3#1e-3 Train 1e-4 Finetune
 weight_decay = 1e-4 #1e-4
-log_interval = 300
+log_interval = 600
 #sample_size = 128
 sample_size = 240
 sample_duration = 16
@@ -89,21 +89,21 @@ if __name__ == '__main__':
     #Train!
     # Load data
     transform = transforms.Compose([transforms.Resize([sample_size, sample_size]),
-                                    transforms.ToTensor(),
-                                    transforms.Normalize(mean=[0.5], std=[0.5])])
+                                    transforms.ToTensor()])#,
+                                    #transforms.Normalize(mean=[0.5], std=[0.5])])
     train_set = Sign_Isolated(data_path=data_path, label_path=label_train_path, frames=sample_duration,
         num_classes=num_classes, train=True, transform=transform)
     val_set = Sign_Isolated(data_path=data_path2, label_path=label_val_path, frames=sample_duration,
         num_classes=num_classes, train=False, transform=transform)
     logger.info("Dataset samples: {}".format(len(train_set)+len(val_set)))
-    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=24, pin_memory=True)
-    val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False, num_workers=24, pin_memory=True)
+    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=2, pin_memory=True)
+    val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False, num_workers=2, pin_memory=True)
 
     # Create model
 
     model = r2plus1d_18(pretrained=True, num_classes=500)
     # load pretrained
-    checkpoint = torch.load('pretrained/slr_resnet2d+1.pth', map_location='cpu')
+    checkpoint = torch.load('pretrained/slr_resnet2d+1.pth', map_location='cuda:0')
     new_state_dict = OrderedDict()
     for k, v in checkpoint.items():
         name = k[7:] # remove 'module.'
@@ -131,15 +131,17 @@ if __name__ == '__main__':
         logger.info("Training Started".center(60, '#'))
         for epoch in range(epochs):
             print('lr: ', get_lr(optimizer))
+            print("Train epoch: {}".format(epoch+1))
             # Train the model
             train_epoch(model, criterion, optimizer, train_loader, device, epoch, logger, log_interval, writer)
 
+            print("Val epoch: {}".format(epoch+1))
             # Validate the model
-            val_loss = val_epoch(model, criterion, val_loader, device, epoch, logger, writer)
-            scheduler.step(val_loss)
-            
+            #val_loss = val_epoch(model, criterion, val_loader, device, epoch, logger, writer)
+            #scheduler.step(val_loss)
+            val_loss = 5
             # Save model
-            torch.save(model.state_dict(), os.path.join(model_path, "sign_resnet2d+1_epoch{:03d}.pth".format(epoch+1)))
+            torch.save(model.state_dict(), os.path.join(model_path, "sign_resnet2d+1_"+str(math.floor(val_loss))+"_epoch{:03d}.pth".format(epoch+1)))
             logger.info("Epoch {} Model Saved".format(epoch+1).center(60, '#'))
     elif phase == 'Test':
         logger.info("Testing Started".center(60, '#'))

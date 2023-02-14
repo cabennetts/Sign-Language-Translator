@@ -15,9 +15,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-import snoop
-from snoop import spy
-
 BN_MOMENTUM = 0.1
 logger = logging.getLogger(__name__)
 

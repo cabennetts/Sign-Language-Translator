@@ -24,35 +24,36 @@ def crop(image, center, radius, size=512):
 
 selected_joints = np.concatenate(([0,1,2,3,4,5,6,7,8,9,10], 
                     [91,95,96,99,100,103,104,107,108,111],[112,116,117,120,121,124,125,128,129,132]), axis=0) 
-folder = '../../../test' # 'train', 'test'
-npy_folder = 'wholepose/npy3' # 'train_npy/npy3', 'test_npy/npy3'
-out_folder = 'val_frames' # 'train_frames' 'test_frames'
+folder = 'E:/ASL_Data/testing/video/v1' # 'train', 'test'
+npy_folder = 'E:/ASL_Data/testing/video/npy' # 'train_npy/npy3', 'test_npy/npy3'
+out_folder = 'E:/ASL_Data/testing/video/frames' # 'train_frames' 'test_frames'
 
 
 
 for root, dirs, files in os.walk(folder, topdown=False):
     for name in files:
-        if 'color' in name:
-            print(os.path.join(root, name))
-            cap = cv2.VideoCapture(os.path.join(root, name))
-            npy = np.load(os.path.join(npy_folder, name + '.npy')).astype(np.float32)
-            npy = npy[:, selected_joints, :2]
-            npy[:, :, 0] = 1920 - npy[:, :, 0]
-            xy_max = npy.max(axis=1, keepdims=False).max(axis=0, keepdims=False)
-            xy_min = npy.min(axis=1, keepdims=False).min(axis=0, keepdims=False)
-            assert xy_max.shape == (2,)
-            xy_center = (xy_max + xy_min) / 2 - 20
-            xy_radius = (xy_max - xy_center).max(axis=0)
-            index = 0
-            while True:
-                ret, frame = cap.read()
-                if ret:
-                    image = crop(frame, xy_center, xy_radius)
-                else:
-                    break
-                index = index + 1
-                image = cv2.resize(image, (960,960))
-                if not os.path.exists(os.path.join(out_folder, name[:-10])):
-                    os.makedirs(os.path.join(out_folder, name[:-10]))
-                cv2.imwrite(os.path.join(out_folder, name[:-10], '{:04d}.jpg'.format(index)), image)
-                print(os.path.join(out_folder, name[:-10], '{:04d}.jpg'.format(index)))
+        #if 'color' in name:
+        print(os.path.join(root, name))
+        cap = cv2.VideoCapture(os.path.join(root, name))
+        npy = np.load(os.path.join(npy_folder, name + '.npy')).astype(np.float32)
+        npy = npy[:, selected_joints, :2]
+        npy[:, :, 0] = 1920 - npy[:, :, 0]
+        xy_max = npy.max(axis=1, keepdims=False).max(axis=0, keepdims=False)
+        xy_min = npy.min(axis=1, keepdims=False).min(axis=0, keepdims=False)
+        assert xy_max.shape == (2,)
+        xy_center = (xy_max + xy_min) / 2 - 20
+        xy_radius = (xy_max - xy_center).max(axis=0)
+        index = 0
+        while True:
+            ret, frame = cap.read()
+            if ret:
+                image = crop(frame, xy_center, xy_radius)
+            else:
+                break
+            index = index + 1
+            image = cv2.resize(image, (960,960))
+            if not os.path.exists(os.path.join(out_folder, name.split('.')[0])):
+                os.makedirs(os.path.join(out_folder, name.split('.')[0]))
+            cv2.imwrite(os.path.join(out_folder, name.split('.')[0], '{:04d}.jpg'.format(index)), image)
+            print(os.path.join(out_folder, name.split('.')[0], '{:04d}.jpg'.format(index)))
+    

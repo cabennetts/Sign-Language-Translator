@@ -1,0 +1,65 @@
+Experiment_name: sign_joint_final
+base_lr: 0.1
+batch_size: 8
+config: config/sign/train/train_joint.yaml
+device:
+- 0
+- 1
+- 2
+- 3
+eval_interval: 5
+feeder: feeders.feeder.Feeder
+groups: 8
+ignore_weights: []
+keep_rate: 0.9
+log_interval: 100
+model: model.decouple_gcn_attn.Model
+model_args:
+  block_size: 41
+  graph: graph.sign_27.Graph
+  graph_args:
+    labeling_mode: spatial
+  groups: 16
+  num_class: 36
+  num_person: 1
+  num_point: 27
+model_saved_name: E:/ASL_Data/data/joint_model/sign_joint_final
+nesterov: true
+num_epoch: 250
+num_worker: 32
+only_train_epoch: 1
+only_train_part: true
+optimizer: SGD
+phase: train
+print_log: true
+save_interval: 2
+save_score: false
+seed: 1
+show_topk:
+- 1
+- 5
+start_epoch: 0
+step:
+- 150
+- 200
+test_batch_size: 8
+test_feeder_args:
+  data_path: E:/ASL_Data/data/sign_gendata/27/test_data_joint.npy
+  label_path: E:/ASL_Data/data/sign_gendata/27/test_label.pkl
+  normalization: true
+  random_mirror: false
+train_feeder_args:
+  data_path: E:/ASL_Data/data/sign_gendata/27/train_data_joint.npy
+  debug: false
+  is_vector: false
+  label_path: E:/ASL_Data/data/sign_gendata/27/train_label.pkl
+  normalization: true
+  random_choose: true
+  random_mirror: true
+  random_mirror_p: 0.5
+  random_shift: true
+  window_size: 100
+warm_up_epoch: 20
+weight_decay: 0.0001
+weights: null
+work_dir: ./work_dir/sign_joint_final
