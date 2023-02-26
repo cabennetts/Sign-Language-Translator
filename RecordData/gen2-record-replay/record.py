@@ -110,7 +110,7 @@ def run():
         
         start = time.time()
         # while (time.time() - start < 3.5) or (not quitEvent.is_set()):
-        while ((time.time() - start) < 3.5) :
+        while ((time.time() - start) < 15) :
             # print(time.time()-start, "\n")
             try:
                 for recording in devices:
