@@ -32,17 +32,19 @@ I imagine the steps of this process are going to be
 3. Add supporting words to make the sentence make sense (I will go library tomorrow -> I will go to the library tomorrow) (I bet a lot of these will be homebrew/vibes)
 
 ideas for easy/distinct words
-school(location), I, you, we, tomorrow(time), name, my(possesion), have, any(determiner), can, yesterday, what, do
+school, I, you, we, tomorrow, name, my, have, yesterday, what, go, hello, car
 """
 import nltk
 
 #We can do the first 2 test sentences and anything with a similar grammatical structure
-TEST_SENTENCES = ["tomorrow school I go", "my name Mat", "Your name what", "Library I run"]
+TEST_SENTENCES = ["yesterday school I go", "my name Mat yesterday", "your name what", "yesterday car I have", "yesterday my school I go"]
 TimeWords = ["tomorrow", "yesterday", "today"]
 #nltk.download('averaged_perceptron_tagger')
-tokens = nltk.word_tokenize(TEST_SENTENCES[0])#seperates the sentence into words
+tokens = nltk.word_tokenize("tomorrow you I go")#seperates the sentence into words
 print(tokens)
 tagged=nltk.pos_tag(tokens)#identify the parts of speech of each word
+
+knownVerbs = [["have", "will have", "had"], ["go", "will go", "went"], ["is", "will be", "was"]]
 
 
 
@@ -78,6 +80,9 @@ def sortWords(token):
             return 3
     if "W" in POS:
         Question=True
+        return 1
+    else :
+        return 999
 
 def combinePhrases(tagged):
     i = 0
@@ -95,7 +100,7 @@ def combinePhrases(tagged):
 
 
 #Conjugate the verb based on tense
-def findVerb(tagged):
+def findVerbPlace(tagged):
     i = 0
     for token in tagged:
         if "VB" in token[1]:
@@ -103,20 +108,33 @@ def findVerb(tagged):
         else:
             i+=1
     return 99
-def conjugateSentence(tagged):
-    verbPlace = findVerb(tagged)
+def findVerb(tagged):
+    verbPlace = findVerbPlace(tagged)#find the verb in the sentence
     if(verbPlace==99):
-        tagged.insert(1, ("is", "VBP"))
+        return knownVerbs[2]
+    for verb in knownVerbs:#for each known verb
+        for conjugated in verb:#and for each conjugation
+            if tagged[verbPlace][0]==conjugated:#check 
+                return verb
+def conjugateSentence(tagged):
+    verbPlace = findVerbPlace(tagged)
+    foundVerb = []
+    if(verbPlace==99):#if no verb is found in the sentence
+        tagged.insert(1, ("is", "VBP"))#we assume in this case that the verb is 'is'
+        foundVerb = knownVerbs[2]#the verb 'is'
+        verbPlace=1
+    else:
+        foundVerb = findVerb(tagged)
+        print("found verb: "+foundVerb[0])
     if(Tense=="future"):
-        tagged.insert(verbPlace, ("will", "PDT"))
-        verbPlace+=1
-    #if(Tense=="past"):
-        #change verb to past tense
+        tagged[verbPlace]=(foundVerb[1], "VB")
+    if(Tense=="past"):
+        tagged[verbPlace]=(foundVerb[2], "VB")
 def applyheuristics(tagged):
-    verbPlace = findVerb(tagged)
-    if verbPlace!=99:
-        if tagged[verbPlace][0] =="go" or tagged[verbPlace][0] =="run":
-            tagged.insert(verbPlace+1, ("to", "TO"))
+    verbPlace = findVerbPlace(tagged)
+    verb = findVerb(tagged)
+    if verb[0] =="go":
+        tagged.insert(verbPlace+1, ("to", "TO"))
 
 printTaggedSentence(tagged)
 print("Step 1: sort the existing words")
@@ -125,6 +143,7 @@ tagged.sort(key=sortWords)
 printTaggedSentence(tagged)
 print("Step 2: conjugate the sentence")
 conjugateSentence(tagged)
+print(tagged)
 printTaggedSentence(tagged)
 print("Step 3: apply heuristics")
 applyheuristics(tagged)
