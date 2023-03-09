@@ -1,13 +1,13 @@
 import React from 'react'
+import { RecordWebcam } from "react-record-webcam";
 
 const Record = () => {
   return (
-    <main>
-
-        <h1>Record a video in browser and submit it for processing</h1>
-
-    </main>
-  )
+    <div>
+      <h1>Record your own video</h1>
+      <RecordWebcam/>
+    </div>
+  );
 }
 
 export default Record
