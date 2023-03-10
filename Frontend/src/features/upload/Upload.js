@@ -26,8 +26,9 @@ export default function Upload() {
   }
 
   const handleSubmission = async () => {
+    let path
+    const fileName = selectedFile.name
     formData.append('videoToUpload', selectedFile);
-
     // await postVideo({ formData })
     fetch('http://localhost:3500/upload', 
       {
@@ -36,10 +37,29 @@ export default function Upload() {
       }
     ).then((response) => response.json())
      .then((result) => {
-      console.log('Success:', result);
+      path = result;
+      console.log('Success (EXPRESS):', result);
      })
      .catch((error) => {
-      console.error('Error:', error);
+      console.error('Error (EXPRESS):', error);
+     })
+
+     // call python 
+     // AJAX?
+     fetch('http://localhost:8000/upload', 
+      {
+        method: 'GET',
+        body: path,
+        headers: {
+          'Access-Control-Allow-Origin':'*'
+        },
+      }
+    ).then((response) => response.json())
+     .then((result) => {
+      console.log('Success (FLASK):', result);
+     })
+     .catch((error) => {
+      console.error('Error (FLASK):', error);
      })
   }
 

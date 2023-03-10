@@ -2,14 +2,16 @@ const express = require('express');
 const path = require('path')
 const multer  = require('multer')
 const upload = multer({ dest: '../files/' })
-
-// const {spawn} = require('child_process')
+// ATTEMPT 2
+const spawner = require('child_process').spawn
+// ATTEMPT 3
+const { PythonShell } = require('python-shell')
+let pyshell = new PythonShell('./python.py');
 
 // for uploads
 const fileUpload = require('express-fileupload')
 // keep from using lots of try catch 
 const asyncHandler = require('express-async-handler')
-
 
 // @desc get request for testing
 // @route GET /upload
@@ -43,6 +45,8 @@ const postVideo = asyncHandler(async (req, res) => {
     videoFile.mv(uploadPath, function(err) {
         if (err) { return res.status(500).send(err); }
 
+        
+        // ATTEMPT 1
         // var dataToSend;
         // // spawn new child process to call the python script
         // const python = spawn('python', ['hw.py'])
@@ -61,8 +65,35 @@ const postVideo = asyncHandler(async (req, res) => {
         //     // res.send(dataToSend)
         // })
 
+        // ATTEMPT 2
+        // string
+        // const data_to_pass_in = '/path/to/video/file';
+
+        // console.log('Data sent to python script:', uploadPath);
+        // const python_process = spawner('python', ['./python.py', uploadPath]);
+        // python_process.stdout.on('data', () => {
+        //     console.log('Data received from python script:', data.toString())
+        // })
+
+        // ATTEMPT 3
+        let options={
+            scriptPath:'/Users/cabennetts/Documents/GitHub/Sign-Language-Translator/Backend/controllers/'
+        }
+        console.log('before run')
+        // PythonShell.run('hw.py', options, (err, res) => {
+        //     console.log('in run')
+        //     if (err) consols.log(err)
+            
+        //     console.log('result: ', res.toString());
+        //     // res.send(res.toString())
+        // })
+        pyshell.send(uploadPath)
+        console.log('after run')
+
         // Call python script here that will process the video
-        return res.status(200).json({ message: `File uploaded!, ${dataToSend}` });
+
+        
+        return res.status(200).json({ message: `File uploaded!, ${uploadPath}` });
     });
 })
 
