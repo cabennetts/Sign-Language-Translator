@@ -2,10 +2,12 @@ import React from 'react'
 import '../index.css'
 
 const Public = () => {
+
     const content = (
         <>
           
             <main>
+
                 <h1> Sign Language Interpreter </h1>
                 <p></p>
                 <img src="/SLI_Project_Logo.png" alt="image" width='300' height='300'/>
@@ -49,5 +51,4 @@ const Public = () => {
 
     return content
 }
-
 export default Public
