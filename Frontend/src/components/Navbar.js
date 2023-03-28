@@ -1,8 +1,8 @@
 import React from 'react'
 import { Link } from "react-router-dom";
-// import {RiHome6Line} from 'react-icons/ri';
-// import {BsFillCloudUploadFill} from 'react-icons/bs';
-// import {BsFillRecordCircleFill} from 'react-icons/bs';
+import {RiHome6Line} from 'react-icons/ri';
+import {BsFillCloudUploadFill} from 'react-icons/bs';
+import {BsFillRecordCircleFill} from 'react-icons/bs';
 
 export const Navbar = () => {
   return (
@@ -10,15 +10,15 @@ export const Navbar = () => {
         <ul>
             <li>
                 <img src="/SLI_Project_Logo.png" alt="image" width='90' height='90'/>
-                {/* &nbsp; */}
-                {/* &nbsp; */}
+                &nbsp;
+                &nbsp;
             </li>
             <li>
                 <button className="btn-logo">
                     <Link to="/">
                         Home
                         &nbsp;
-                        {/* <RiHome6Line  size={20}/> */}
+                        <RiHome6Line  size={20}/>
                     </Link>
                 </button>
             </li>
@@ -28,7 +28,7 @@ export const Navbar = () => {
                     <Link to="/upload">
                         Upload
                         &nbsp;
-                        {/* <BsFillCloudUploadFill size={20}/> */}
+                        <BsFillCloudUploadFill size={20}/>
                     </Link>
                 </button>
             </li>
@@ -38,7 +38,7 @@ export const Navbar = () => {
                     <Link to="/record">
                         Record
                         &nbsp;
-                        {/* <BsFillRecordCircleFill size={20}/> */}
+                        <BsFillRecordCircleFill size={20}/>
                     </Link>
                 </button> 
             </li>

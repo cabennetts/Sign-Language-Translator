@@ -17,6 +17,10 @@ body {
   color: var(--color-text);
   margin-top: 50px;
 }
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
 
 main {
   padding: 1rem 10vw;
@@ -62,6 +66,11 @@ code {
   overflow-x: scroll;
 }
 
+
+/* Table */
+.resTable {
+  width: 70%;
+}
 /* Navbar */
 
 .navbar {

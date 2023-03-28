@@ -10,6 +10,7 @@ The file must be in the ensemble folder, it depends on the contained code.
 path_to_video = '/Users/cabennetts/Documents/GitHub/Sign-Language-Translator/Backend/controllers/files/'
 
 import os
+import shutil
 import sys
 
 # change the current working directory to the directory of this file
@@ -287,6 +288,29 @@ def tcn_predictions():
     # where each inner array contains the top 5 predictions for the model on that set
     return tcn_predictions
 
+def remove_files_in_dir(path):
+    """
+    This function removes all files and folders within a directory
+    """
+    # Check if path exists
+    if not os.path.exists(path):
+        print(f"{path} does not exist")
+        return
+    
+    # Remove files in the directory
+    for filename in os.listdir(path):
+        file_path = os.path.join(path, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print(f"Failed to delete {file_path}. Reason: {e}")
+
+    print(f"All files and folders in {path} have been removed.")
+    
+
 @snoop      
 def run_ensemble():
     # Run data preprocessing
@@ -340,6 +364,7 @@ def run_ensemble():
     json_object = json.dumps(data)
     print(data)
     print(json_object)
+    remove_files_in_dir(path_to_video)
     return json_object
  
 if __name__ == "__main__":
