@@ -35,14 +35,15 @@ ideas for easy/distinct words
 school, I, you, we, tomorrow, name, my, have, yesterday, what, go, hello, car
 """
 import nltk
+import sys
 
 #We can do the first 2 test sentences and anything with a similar grammatical structure
-TEST_SENTENCES = ["yesterday school I go", "my name Mat yesterday", "your name what", "yesterday car I have", "yesterday my school I go"]
+#TEST_SENTENCES = ["yesterday school I go", "my name Mat yesterday", "your name what", "yesterday car I have", "yesterday my school I go"]
 TimeWords = ["tomorrow", "yesterday", "today"]
 #nltk.download('averaged_perceptron_tagger')
-tokens = nltk.word_tokenize("tomorrow you I go")#seperates the sentence into words
-print(tokens)
-tagged=nltk.pos_tag(tokens)#identify the parts of speech of each word
+#seperates the sentence into words
+#print(tokens)
+#identify the parts of speech of each word
 
 knownVerbs = [["have", "will have", "had"], ["go", "will go", "went"], ["is", "will be", "was"]]
 
@@ -59,6 +60,12 @@ def printTaggedSentence(tagged):
         sentence+=token[0]
         sentence+=" "
     print(sentence)
+def returnTaggedSentence(tagged):
+    sentence = ""
+    for token in tagged:
+        sentence+=token[0]
+        sentence+=" "
+    return sentence
 #now that we have figured out each word's place in the sentence, reorder the words
 def sortWords(token):
     global foundObject
@@ -87,7 +94,7 @@ def sortWords(token):
 def combinePhrases(tagged):
     i = 0
     for token in tagged:
-        if token[0]=="my" or token[0]=="your":#if we have a possesion word, we must ensure that it stays next to whatever word it is possessing
+        if token[0]=="my" or token[0]=="your":#if we have a possession word, we must ensure that it stays next to whatever word it is possessing
             nextToken = tagged[i+1]
             x=list(token)
             x[0]+= " "+nextToken[0]
@@ -95,7 +102,7 @@ def combinePhrases(tagged):
             tagged[i]=tuple(x)
             del tagged[i+1]
         i+=1
-    print(tagged)
+    #print(tagged)
 
 
 
@@ -125,7 +132,6 @@ def conjugateSentence(tagged):
         verbPlace=1
     else:
         foundVerb = findVerb(tagged)
-        print("found verb: "+foundVerb[0])
     if(Tense=="future"):
         tagged[verbPlace]=(foundVerb[1], "VB")
     if(Tense=="past"):
@@ -135,20 +141,38 @@ def applyheuristics(tagged):
     verb = findVerb(tagged)
     if verb[0] =="go":
         tagged.insert(verbPlace+1, ("to", "TO"))
-
+def main(sentence):
+    global foundObject
+    global Question
+    global Tense
+    foundObject = False
+    Question=False
+    Tense = ""
+    tokens = nltk.word_tokenize(sentence)
+    tagged=nltk.pos_tag(tokens)
+    #print(tagged)
+    combinePhrases(tagged)
+    tagged.sort(key=sortWords)
+    conjugateSentence(tagged)
+    applyheuristics(tagged)
+    #printTaggedSentence(tagged)
+    return returnTaggedSentence(tagged)
+if __name__ == "__main__":
+    main(sys.argv[1])
+"""
 printTaggedSentence(tagged)
 print("Step 1: sort the existing words")
-combinePhrases(tagged)
-tagged.sort(key=sortWords)
+
+
 printTaggedSentence(tagged)
 print("Step 2: conjugate the sentence")
-conjugateSentence(tagged)
+
 print(tagged)
 printTaggedSentence(tagged)
 print("Step 3: apply heuristics")
-applyheuristics(tagged)
-printTaggedSentence(tagged)
 
+printTaggedSentence(tagged)
+"""
     
 
 
