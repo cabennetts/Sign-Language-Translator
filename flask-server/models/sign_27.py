@@ -37,8 +37,9 @@ class Graph:
 
 
 if __name__ == '__main__':
-    import matplotlib.pyplot as plt
     import os
+
+    import matplotlib.pyplot as plt
 
     # os.environ['DISPLAY'] = 'localhost:11.0'
     A = Graph('spatial').get_adjacency_matrix()

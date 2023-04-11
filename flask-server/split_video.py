@@ -42,7 +42,7 @@ def split_video_frames(video_path):
     #if len(frame_list) > 0:
     #    save_frames_to_mp4(frame_list, folder_name)
     # check if number of files in folder is 16, if not delete the folder
-    if len(os.listdir(folder_name + "/set_" + str(total_sets))) < 16:
+    if len(os.listdir(folder_name + "/set_" + str(total_sets))) < 1:
         shutil.rmtree(folder_name + "/set_" + str(total_sets))
 
     # Release the video file

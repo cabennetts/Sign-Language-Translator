@@ -1,27 +1,26 @@
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-import cv2
-import numpy as np
+from __future__ import absolute_import, division, print_function
+
 import argparse
+import glob
 import os
 import pprint
-import glob
+
+import cv2
+import numpy as np
 import torch
-import torch.nn.parallel
 import torch.backends.cudnn as cudnn
+import torch.nn.parallel
 import torch.optim
 import torch.utils.data
 import torch.utils.data.distributed
-
+import torchvision.transforms as transforms
+from config import cfg, update_config
 from pose_hrnet import get_pose_net
 from torch.autograd import Variable
-from config import cfg
-from config import update_config
-
-import torchvision.transforms as transforms
 from tqdm import tqdm
+
+
 def run(input_path = None, output_path = None, is_train = None):
     #parser = argparse.ArgumentParser()
     #parser.add_argument("--video_path", type=str, default="D:/Test", help="Path to input dataset")

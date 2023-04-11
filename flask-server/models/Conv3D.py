@@ -1,17 +1,19 @@
 #imports
+import inspect
+import math
+import os
+import sys
+from collections import OrderedDict
+from functools import partial
+
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torchvision
 from torch.autograd import Variable
 from torch.hub import load_state_dict_from_url
-import torchvision
-from functools import partial
-from collections import OrderedDict
-import math
-import os
-import inspect
-import sys
+
 
 def convert_relu_to_swish(model):
     for child_name, child in model.named_children():

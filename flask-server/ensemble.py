@@ -37,11 +37,11 @@ import gen_frames
 import gen_motion_data
 import sign_27
 import sign_gendata
-import snoop
 import split_video
 import wholepose_features_extraction
 from T_Pose_model import T_Pose_model
 
+import SentenceShuffler
 # Looks like lots of errors, but it's just because I'm importing from other folders
 from Conv3D import r2plus1d_18
 
@@ -49,13 +49,12 @@ from Conv3D import r2plus1d_18
 # data we will need for the predictions.
 # NOTE: These functions are in the order they should be called
 
-
 # This function calls the split_video function to split the video into 
 # one video for every 56 frames, and creates the folders that will contain
 # the data needed for each 56 frame 'set'
 def video_to_sets():
     #loop through files in path_to_video searching for .mp4 files
-    for file in os.listdir(path_to_video):
+    for file in sorted(os.listdir(path_to_video)):
         if file.endswith(".mp4"):
             #split the video into sets of 56 frames
             split_video.run_sv(path_to_video + file)
@@ -63,7 +62,7 @@ def video_to_sets():
 # This function runs demo.py to extract the keypoints from each set.
 # It then saves the keypoints as a .npy file in a /npy/ folder in each set folder
 def generate_npy_keypoints():
-    for folder in os.listdir(path_to_video):
+    for folder in sorted(os.listdir(path_to_video)):
         if os.path.isdir(path_to_video + folder):
             os.mkdir(path_to_video + folder + '/npy/')
             demo.run(path_to_video + folder, path_to_video + folder + '/npy/')
@@ -71,7 +70,7 @@ def generate_npy_keypoints():
 # This function runs gen_frames.py to extract the frames from each set
 # and saves them in the /frames/ folder in each set folder.
 def extract_frames():
-    for folder in os.listdir(path_to_video):
+    for folder in sorted(os.listdir(path_to_video)):
         if os.path.isdir(path_to_video + folder):
             os.mkdir(path_to_video + folder + '/frames/')
             gen_frames.run(path_to_video + folder, path_to_video + folder + '/frames/', path_to_video + folder + '/npy/')
@@ -79,7 +78,7 @@ def extract_frames():
 # This function runs wholepose_features_extraction.py to extract the features
 # from each set and saves them in the /pt/ folder in each set folder.
 def generate_pt_features():
-    for folder in os.listdir(path_to_video):
+    for folder in sorted(os.listdir(path_to_video)):
         if os.path.isdir(path_to_video + folder):
             os.mkdir(path_to_video + folder + '/pt/')
             wholepose_features_extraction.run(path_to_video + folder, path_to_video + folder + '/pt/', False)
@@ -87,7 +86,7 @@ def generate_pt_features():
 # This function runs sign_gendata.py to generate the data needed for the
 # joint GCN model and saves it in the /sign_gen/ folder in each set folder.
 def generate_sign_gcn_data():
-    for folder in os.listdir(path_to_video):
+    for folder in sorted(os.listdir(path_to_video)):
         if os.path.isdir(path_to_video + folder):
             os.mkdir(path_to_video + folder + '/sign_gen/')
             sign_gendata.run(path_to_video + folder + '/npy/', path_to_video + folder + '/sign_gen/')
@@ -95,14 +94,14 @@ def generate_sign_gcn_data():
 # This function runs gen_bone_data.py to generate the data needed for the
 # bone GCN model and saves it in the /sign_gen/ folder in each set folder.
 def generate_bone_gcn_data():
-    for folder in os.listdir(path_to_video):
+    for folder in sorted(os.listdir(path_to_video)):
         if os.path.isdir(path_to_video + folder):
             gen_bone_data.run(path_to_video + folder + '/sign_gen/')
 
 # This function runs gen_motion_data.py to generate the data needed for the joint and
 # bone motion GCN models and saves it in the /sign_gen/ folder in each set folder.
 def generate_motion_gcn_data():
-    for folder in os.listdir(path_to_video):
+    for folder in sorted(os.listdir(path_to_video)):
         if os.path.isdir(path_to_video + folder):
             gen_motion_data.run(path_to_video + folder + '/sign_gen/')
 
@@ -147,12 +146,12 @@ def rgb_cnn_prediction():
     rgb_cnn_predictions = []
 
     # Loop through each set and make predictions
-    for folder in os.listdir(path_to_video):
+    for folder in sorted(os.listdir(path_to_video)):
         if os.path.isdir(path_to_video + folder + '/frames/0'):
             print(folder)
             images = []
             input_clips = []
-            for i, file in enumerate(os.listdir(path_to_video + folder + '/frames/0')):
+            for i, file in enumerate(sorted(os.listdir(path_to_video + folder + '/frames/0'))):
                 if i < 4:
                     continue
                 image = Image.open(path_to_video + folder + '/frames/0/' + file)
@@ -217,7 +216,7 @@ def gcn_predictions():
     joint_motion_predictions = []
     bone_motion_predictions = []
 
-    for folder in os.listdir(path_to_video):
+    for folder in sorted(os.listdir(path_to_video)):
         if os.path.isdir(path_to_video + folder + '/sign_gen/'):
             bone_npy = np.load(path_to_video + folder + '/sign_gen/test_data_bone.npy')
             joint_npy = np.load(path_to_video + folder + '/sign_gen/test_data_joint.npy')
@@ -267,7 +266,7 @@ def tcn_predictions():
 
     tcn_predictions = []
 
-    for folder in os.listdir(path_to_video):
+    for folder in sorted(os.listdir(path_to_video)):
         if os.path.isdir(path_to_video + folder + '/pt/'):
             pt_file = path_to_video + folder + '/pt/0.mp4.pt'
             data = torch.load(pt_file)
@@ -288,6 +287,9 @@ def tcn_predictions():
     # where each inner array contains the top 5 predictions for the model on that set
     return tcn_predictions
 
+
+
+
 def remove_files_in_dir(path):
     """
     This function removes all files and folders within a directory
@@ -298,7 +300,7 @@ def remove_files_in_dir(path):
         return
     
     # Remove files in the directory
-    for filename in os.listdir(path):
+    for filename in sorted(os.listdir(path)):
         file_path = os.path.join(path, filename)
         try:
             if os.path.isfile(file_path) or os.path.islink(file_path):
@@ -311,7 +313,7 @@ def remove_files_in_dir(path):
     print(f"All files and folders in {path} have been removed.")
     
 
-@snoop      
+   
 def run_ensemble():
     # Run data preprocessing
     print("Starting Processing")
@@ -348,19 +350,27 @@ def run_ensemble():
         for i, pred in enumerate(averaged_preds):
             print(class_labels[i] + ": " + str(pred))
         final_preds.append(max(zip(averaged_preds, class_labels)))
+        print('Final Preds:', final_preds)
 
     print("Final Predictions: ")
     import json
     result = ""
     data =  { "result": "",
-              "words": {}
+              "words": {},
+              "english": "",
             }  
 
     for i, pred in enumerate(final_preds):
         result += pred[1] + " "
         data['words'][pred[1]] = pred[0]
-        
+    
+    result = result.replace("self", "I")
+
+    # convert result to proper english
+    english = SentenceShuffler.convertToEnglish(result)
+
     data['result'] = result
+    data['english'] = english
     json_object = json.dumps(data)
     print(data)
     print(json_object)

@@ -1,8 +1,11 @@
 import math
+from collections import OrderedDict
+
 import torch
 import torch.nn as nn
-from collections import OrderedDict
 import torch.nn.functional as F
+
+
 # groups == joints_number
 def channel_shuffle(x, groups):
     batchsize, num_channels, height, width = x.data.size()

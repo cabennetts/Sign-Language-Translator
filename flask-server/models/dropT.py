@@ -2,6 +2,7 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
+
 class DropBlockT_1d(nn.Module):
     def __init__(self, block_size=7):
         super(DropBlockT_1d, self).__init__()
