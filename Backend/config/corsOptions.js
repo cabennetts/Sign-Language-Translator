@@ -1,3 +1,4 @@
+// All options for cors 
 const allowedOrigins = require('./allowedOrigins')
 
 const corsOptions = {

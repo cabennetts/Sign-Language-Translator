@@ -313,7 +313,7 @@ def remove_files_in_dir(path):
     print(f"All files and folders in {path} have been removed.")
     
 
-   
+# run through every step defined above 
 def run_ensemble():
     # Run data preprocessing
     print("Starting Processing")
@@ -353,6 +353,7 @@ def run_ensemble():
         print('Final Preds:', final_preds)
 
     print("Final Predictions: ")
+    # object to return results
     import json
     result = ""
     data =  { "result": "",
@@ -374,6 +375,7 @@ def run_ensemble():
     json_object = json.dumps(data)
     print(data)
     print(json_object)
+    # clear contents in upload folder
     remove_files_in_dir(path_to_video)
     return json_object
  

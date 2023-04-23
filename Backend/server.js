@@ -9,6 +9,8 @@ const corsOptions = require('./config/corsOptions')
 
 const PORT = process.env.PORT || 3500
 
+// Actual Node.js server
+// Functions and components to use
 app.use(logger)
 app.use(cors())
 app.use(express.json())
@@ -17,7 +19,7 @@ app.use(fileUpload())
 app.use('/', express.static(path.join(__dirname, '/public')))
 // how index page is displayed 
 app.use('/', require('./routes/root'))
-
+// allows to use path "/upload"
 app.use('/upload', require('./routes/uploadRoutes'))
 
 // handles 404 pages 
@@ -32,5 +34,6 @@ app.all('*', (req, res) => {
     }
 })
 
+// for error logging
 app.use(errorHandler)
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`))

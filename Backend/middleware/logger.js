@@ -4,7 +4,9 @@ const fs = require('fs')
 const fsPromises = require('fs').promises
 const path = require('path')
 
+// Handles all logging
 const logEvents = async (message, logFileName) => {
+
     const dateTime = format(new Date(), 'yyyyMMdd\tHH:mm:ss')
     const logItem = `${dateTime}\t${uuid()}\t${message}\n`
 

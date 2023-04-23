@@ -1,3 +1,4 @@
+// cors origins allowed
 const allowedOrigins = [
     'http://localhost:3000',
 ]

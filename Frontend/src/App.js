@@ -6,7 +6,8 @@ import Record from './features/record/Record';
 import { Navbar } from './components/Navbar';
 import './index.css'
 function App() {
-  
+
+  // Entire application with components and routing
   return (
     <>
     <Navbar />

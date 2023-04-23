@@ -25,12 +25,15 @@ const InterpretVideo = () => {
           throw response;
         })
         .then((data) => {
+          // log results
           console.log('Success (FLASK):', data);
+          // assign data from returned object
           setInterp(data.result)
           setWords(data.words)
           setEnglish(data.english)
         })
         .catch((error) => {
+          // catch errors
           console.error('Error (FLASK):', error);
         })
       }
