@@ -1,8 +1,6 @@
 """
 ● We want to research the processes and challenges that will be associated with
 translating the ASL sentences into English once we have identified the individual words
-● The goal is to identify libraries/code that will be useful in parsing and reorganizing
-sentences
 ● Ideally we will make a prototype for this translation that can handle some simple
 sentences, but this will depend on how many libraries already exist and how helpful they
 will turn out to be.
@@ -10,17 +8,6 @@ will turn out to be.
 
 NLTK (python library) seems to be an interesting option for this can tokenize sentences
 
-Seems very powerful/possibly overkill for what we are trying to do 
-
-it has a lot of different uses, the vast majority seem useless to us but this might be powerful
-enough to just eat this project alive, which would be very PogChamp
-
-Ok so it seems that this is EVEN COOLER than I initially realized, the tagging function is actually context dependent, so it will figure
-out if a word is actually the verb of the sentence. an example of this is the sentence "I wore my running shoes this morning", it correctly 
-identifies that "running" is not the verb, but it's instead a part of "running shoes". I have a very strong suspicion that this won't work on
-a ASL formatted sentence but it is cool to keep in mind
-
-The translate function might be useful for moving words around within the sentence
 
 list of tags and their meaning https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html
 Examples of tags https://stackoverflow.com/questions/15388831/what-are-all-possible-pos-tags-of-nltk
@@ -37,13 +24,9 @@ school, I, you, we, tomorrow, name, my, have, yesterday, what, go, hello, car
 import nltk
 import sys
 
-#We can do the first 2 test sentences and anything with a similar grammatical structure
+
 #TEST_SENTENCES = ["yesterday school I go", "my name Mat yesterday", "your name what", "yesterday car I have", "yesterday my school I go"]
 TimeWords = ["tomorrow", "yesterday", "today"]
-#nltk.download('averaged_perceptron_tagger')
-#seperates the sentence into words
-#print(tokens)
-#identify the parts of speech of each word
 
 knownVerbs = [["have", "will have", "had"], ["go", "will go", "went"], ["is", "will be", "was"]]
 
@@ -55,6 +38,7 @@ Tense = ""
 
 
 def printTaggedSentence(tagged):
+    #loop through the array and add the words to the sentence
     sentence = ""
     for token in tagged:
         sentence+=token[0]
@@ -71,6 +55,7 @@ def sortWords(token):
     global foundObject
     POS=token[1]
     if token[0] in TimeWords:
+        #we want to put our time words last in the sentence
         global Tense
         if(token[0] == "tomorrow"):
             Tense = "future"
@@ -78,8 +63,10 @@ def sortWords(token):
             Tense = "past"
         return 4
     if "VB" in POS:
+        #verbs go after the object
         return 2
     if "NN" in POS or "PRP" in POS:
+        #the object typically comes first in the sentence before the subject
         if foundObject:
             return 1
         else:
@@ -155,24 +142,10 @@ def main(sentence):
     tagged.sort(key=sortWords)
     conjugateSentence(tagged)
     applyheuristics(tagged)
-    #printTaggedSentence(tagged)
     return returnTaggedSentence(tagged)
 if __name__ == "__main__":
     main(sys.argv[1])
-"""
-printTaggedSentence(tagged)
-print("Step 1: sort the existing words")
 
-
-printTaggedSentence(tagged)
-print("Step 2: conjugate the sentence")
-
-print(tagged)
-printTaggedSentence(tagged)
-print("Step 3: apply heuristics")
-
-printTaggedSentence(tagged)
-"""
     
 
 
